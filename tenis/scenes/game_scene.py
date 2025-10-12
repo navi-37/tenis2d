@@ -21,7 +21,7 @@ class GameScene(Scene):
         self.num_players = num_players
 
         # Jugador 1
-        self.player1 = Player(450, 50, player_number=1)
+        self.player1 = Player(450, 50, player_number=1, control_scheme='wasd')
         self.players.append(self.player1)
 
         # Debug: mostrar animaciones disponibles
@@ -29,9 +29,8 @@ class GameScene(Scene):
 
         # Jugador 2 (si es modo 2 jugadores)
         if num_players == 2:
-            self.player2 = Player(self.game.width - 150, self.game.height // 2, player_number=2)
+            self.player2 = Player(1100, 750, player_number=2, control_scheme='arrows')
             self.players.append(self.player2)
-            self.player2.print_available_animations()
 
     def handle_events(self, events):
         """Maneja eventos de la escena"""

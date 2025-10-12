@@ -6,13 +6,13 @@ from engine.game_object import GameObject
 class Player(GameObject):
     """Jugador con controles y animaciones"""
 
-    def __init__(self, x, y, player_number=1):
+    def __init__(self, x, y, player_number=1, control_scheme='wasd'):
         json_path = os.path.join('assets', 'sprites', f'player_{player_number}.json')
         super().__init__(x, y, json_path)
 
         self.velocidad = 8
         self.player_number = player_number
-
+        self.control_scheme = control_scheme
         # Mapear nombres de animaciones genéricas a las que están en el JSON
         self._detect_animations()
         self.last_direction = 'idle'
@@ -39,28 +39,40 @@ class Player(GameObject):
         # Después de detectar anims normales
         if 'idle' in self.animations:
             idle_frames = self.animations['idle']
-            # Suponiendo tu JSON: primer frame para right, segundo para left
             if len(idle_frames) >= 2:
                 self.animations['idle_right'] = [idle_frames[0]]
                 self.animations['idle_left'] = [idle_frames[1]]
             else:
-                # Si solo hay un idle, duplicamos para ambos
                 self.animations['idle_right'] = idle_frames
                 self.animations['idle_left'] = idle_frames
 
     def handle_input(self, keys):
-        """Maneja el input del jugador y actualiza animación"""
+        """Maneja el input del jugador según su esquema de control"""
         moving = False
 
+        #elegir esquema de controles
+        if self.control_scheme == 'wasd':
+            left = keys[pygame.K_a]
+            right = keys[pygame.K_d]
+            up = keys[pygame.K_w]
+            down = keys[pygame.K_s]
+            hit = keys[pygame.K_SPACE]
+        else:  # esquema de flechas
+            left = keys[pygame.K_LEFT]
+            right = keys[pygame.K_RIGHT]
+            up = keys[pygame.K_UP]
+            down = keys[pygame.K_DOWN]
+            hit = keys[pygame.K_SLASH] or keys[pygame.K_RCTRL]  # / o Ctrl derecho
+
         # Movimiento horizontal
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        if left:
             self.x -= self.velocidad
             self.last_direction = 'left'
             if self.current_animation != self.anims.get('walk_left', ''):
                 self.set_animation(self.anims.get('walk_left', 'idle'))
             moving = True
 
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        elif right:
             self.x += self.velocidad
             self.last_direction = 'right'
             if self.current_animation != self.anims.get('walk_right', ''):
@@ -68,7 +80,7 @@ class Player(GameObject):
             moving = True
 
         # Movimiento vertical
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
+        if up:
             self.y -= self.velocidad
             if self.last_direction == 'right':
                 if self.current_animation != self.anims.get('walk_right', ''):
@@ -78,7 +90,7 @@ class Player(GameObject):
                     self.set_animation(self.anims.get('walk_left', 'idle'))
             moving = True
 
-        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        elif down:
             self.y += self.velocidad
             if self.last_direction == 'left':
                 if self.current_animation != self.anims.get('walk_left', ''):
@@ -89,7 +101,7 @@ class Player(GameObject):
             moving = True
 
         # Acción de golpe
-        if keys[pygame.K_SPACE]:
+        if hit:
             if self.last_direction == 'idle':
                 self.set_animation(self.anims['hit_right'])
             elif self.last_direction == 'left':
@@ -98,7 +110,7 @@ class Player(GameObject):
                 self.set_animation(self.anims['hit_right'])
             moving = True
 
-        # Si no hay movimiento, poner idle según última dirección
+        # Si no hay movimiento, idle según dirección
         if not moving:
             if self.last_direction == 'left':
                 self.set_animation('idle_left')
