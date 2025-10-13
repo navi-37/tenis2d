@@ -1,5 +1,4 @@
 import pygame
-import os
 
 from scenes.menu_scene import MenuScene
 from scenes.game_scene import GameScene
@@ -57,22 +56,20 @@ class TenisGame:
     def run(self):
         """Loop principal del juego"""
         while self.running:
-            # Limitar a 60 FPS y obtener delta time
+            # limitar a 60 FPS y obtener delta time
             dt = self.clock.tick(60)
 
-            # Eventos
             events = pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            # Actualizar escena actual
+            # actualizar escena actual
             if self.current_scene:
                 self.current_scene.handle_events(events)
                 self.current_scene.update(dt)
                 self.current_scene.draw(self.screen)
 
-            # Actualizar pantalla
             pygame.display.flip()
 
         pygame.quit()

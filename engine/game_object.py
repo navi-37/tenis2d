@@ -16,6 +16,11 @@ class GameObject:
         self.rect = None
         self.frame_time = 0
         self.frame_duration = 150  # ms por frame
+        self.mask = None  # mask para colisiones pixel-perfect
+
+        # Control de loop de animaciones
+        self.animation_loop = True  # Por defecto las animaciones hacen loop
+        self.animation_finished = False  # Flag para saber si una animación no-loop terminó
 
         self.load_from_json(json_path)
 
@@ -33,10 +38,8 @@ class GameObject:
 
             # Cargar animaciones
             for anim_name, frames_data in data.get('animations', {}).items():
-                # Convertir dict a lista si es necesario
                 if isinstance(frames_data, dict):
                     frames_data = [frames_data]
-
                 self.animations[anim_name] = [
                     (f['x'], f['y'], f['width'], f['height'])
                     for f in frames_data
@@ -45,58 +48,90 @@ class GameObject:
             if not self.animations:
                 raise ValueError("No hay animaciones en el JSON")
 
-            # Configurar animación inicial
             self.set_animation('idle')
 
         except Exception as e:
             print(f"Error cargando {json_path}: {e}")
             raise
 
-    def set_animation(self, anim_name):
+    def set_animation(self, anim_name, loop=True):
+        """
+        Cambia la animación actual
+        Args:
+            anim_name: nombre de la animación
+            loop: si True, la animación se repite; si False, se detiene en el último frame
+        """
         if not self.animations:
-            print("No hay animaciones cargadas.")
             return
 
         if anim_name not in self.animations:
-            # fallback seguro
             anim_name = list(self.animations.keys())[0]
-            print(f" Animación '{anim_name}' no encontrada, usando '{anim_name}'")
 
         self.current_animation = anim_name
         self.frame_index = 0
         self.frame_time = 0
+        self.animation_loop = loop
+        self.animation_finished = False
 
-        # Garantizar que rect exista
+        # Configurar rect
         x, y, w, h = self.animations[self.current_animation][0]
         if not self.rect:
             self.rect = pygame.Rect(self.x, self.y, w, h)
         else:
             self.rect.update(self.x, self.y, w, h)
 
+        # Crear mask inicial
+        self.update_mask()
+
     def update(self, dt):
-        """Actualiza la animación según el tiempo transcurrido"""
+        """Actualiza animación y mask"""
         if not self.animations or self.current_animation not in self.animations:
             return
 
-        self.frame_time += dt
-        if self.frame_time >= self.frame_duration:
-            self.frame_time -= self.frame_duration
-            frames = self.animations[self.current_animation]
-            self.frame_index = (self.frame_index + 1) % len(frames)
+        # Solo avanzar frames si la animación no ha terminado
+        if not self.animation_finished:
+            # Convertir dt a milisegundos si está en segundos
+            dt_ms = dt * 1000 if dt < 1 else dt
 
-        # Actualizar posición del rect
+            self.frame_time += dt_ms
+            if self.frame_time >= self.frame_duration:
+                self.frame_time -= self.frame_duration
+                frames = self.animations[self.current_animation]
+
+                if self.animation_loop:
+                    # Animación con loop
+                    self.frame_index = (self.frame_index + 1) % len(frames)
+                else:
+                    # Animación sin loop
+                    self.frame_index += 1
+                    if self.frame_index >= len(frames):
+                        self.frame_index = len(frames) - 1
+                        self.animation_finished = True
+
+        # Actualizar rect
         self.rect.x = self.x
         self.rect.y = self.y
 
-    def draw(self, surface):
-        """Dibuja el frame actual"""
-        if not self.sprite_sheet or not self.animations:
-            return
+        # Actualizar mask del frame actual
+        self.update_mask()
 
-        if self.current_animation not in self.animations:
+    def update_mask(self):
+        """Genera la mask del frame actual para colisiones pixel-perfect"""
+        if not self.sprite_sheet or not self.animations:
+            self.mask = None
             return
 
         x, y, w, h = self.animations[self.current_animation][self.frame_index]
         frame = self.sprite_sheet.subsurface(pygame.Rect(x, y, w, h))
-        frame = pygame.transform.scale(frame, (300, 300)) # reescalado del sprite
+        frame = pygame.transform.scale(frame, (300, 300))  # mismo reescalado que en draw
+        self.mask = pygame.mask.from_surface(frame)
+
+    def draw(self, surface):
+        """Dibuja el frame actual"""
+        if not self.sprite_sheet or not self.animations or self.current_animation not in self.animations:
+            return
+
+        x, y, w, h = self.animations[self.current_animation][self.frame_index]
+        frame = self.sprite_sheet.subsurface(pygame.Rect(x, y, w, h))
+        frame = pygame.transform.scale(frame, (300, 300))
         surface.blit(frame, self.rect)

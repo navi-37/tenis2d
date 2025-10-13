@@ -13,9 +13,15 @@ class Player(GameObject):
         self.velocidad = 8
         self.player_number = player_number
         self.control_scheme = control_scheme
+        self.scaled_size = 300
+
+        self._is_hitting = False
+
         # Mapear nombres de animaciones genéricas a las que están en el JSON
         self._detect_animations()
+        self.vertical_idle_side = 'right'
         self.last_direction = 'idle'
+        self.foot_offset = 290
 
     def _detect_animations(self):
         self.anims = {}
@@ -48,85 +54,111 @@ class Player(GameObject):
 
     def handle_input(self, keys):
         """Maneja el input del jugador según su esquema de control"""
+
+        # Si estamos golpeando, no procesar movimiento ni cambiar animaciones
+        if self._is_hitting:
+            return
+
         moving = False
 
-        #elegir esquema de controles
+        # Elegir esquema de controles
         if self.control_scheme == 'wasd':
             left = keys[pygame.K_a]
             right = keys[pygame.K_d]
             up = keys[pygame.K_w]
             down = keys[pygame.K_s]
-            hit = keys[pygame.K_SPACE]
         else:  # esquema de flechas
             left = keys[pygame.K_LEFT]
             right = keys[pygame.K_RIGHT]
             up = keys[pygame.K_UP]
             down = keys[pygame.K_DOWN]
-            hit = keys[pygame.K_SLASH] or keys[pygame.K_RCTRL]  # / o Ctrl derecho
 
-        # Movimiento horizontal
+        # Actualizar posición
         if left:
             self.x -= self.velocidad
             self.last_direction = 'left'
-            if self.current_animation != self.anims.get('walk_left', ''):
-                self.set_animation(self.anims.get('walk_left', 'idle'))
             moving = True
-
         elif right:
             self.x += self.velocidad
             self.last_direction = 'right'
-            if self.current_animation != self.anims.get('walk_right', ''):
-                self.set_animation(self.anims.get('walk_right', 'idle'))
             moving = True
 
-        # Movimiento vertical
         if up:
             self.y -= self.velocidad
-            if self.last_direction == 'right':
-                if self.current_animation != self.anims.get('walk_right', ''):
-                    self.set_animation(self.anims.get('walk_right', 'idle'))
-            elif self.last_direction == 'left':
-                if self.current_animation != self.anims.get('walk_left', ''):
-                    self.set_animation(self.anims.get('walk_left', 'idle'))
             moving = True
-
         elif down:
             self.y += self.velocidad
-            if self.last_direction == 'left':
-                if self.current_animation != self.anims.get('walk_left', ''):
-                    self.set_animation(self.anims.get('walk_left', 'idle'))
-            elif self.last_direction == 'right':
-                if self.current_animation != self.anims.get('walk_right', ''):
-                    self.set_animation(self.anims.get('walk_right', 'idle'))
             moving = True
 
-        # Acción de golpe
-        if hit:
-            if self.last_direction == 'idle':
-                self.set_animation(self.anims['hit_right'])
-            elif self.last_direction == 'left':
-                self.set_animation(self.anims['hit_left'])
-            elif self.last_direction == 'right':
-                self.set_animation(self.anims['hit_right'])
-            moving = True
-
-        # Si no hay movimiento, idle según dirección
-        if not moving:
+        # Cambiar animación según movimiento
+        if left:
+            anim = self.anims.get('walk_left', 'idle')
+            if self.current_animation != anim:
+                self.set_animation(anim)
+        elif right:
+            anim = self.anims.get('walk_right', 'idle')
+            if self.current_animation != anim:
+                self.set_animation(anim)
+        elif up or down:
+            desired_anim = f'walk_{self.last_direction}' if self.last_direction in ['left', 'right'] else 'walk_right'
+            if self.current_animation != self.anims.get(desired_anim):
+                self.set_animation(self.anims.get(desired_anim, 'idle'))
+        elif not moving:
             if self.last_direction == 'left':
                 self.set_animation('idle_left')
             elif self.last_direction == 'right':
                 self.set_animation('idle_right')
             else:
-                self.set_animation(self.anims.get('idle', 'idle'))
+                self.set_animation('idle')
+
+    def handle_keydown(self, key):
+        """Marca que se debe iniciar la animación de golpe al presionar la tecla"""
+        if self.control_scheme == 'wasd' and key == pygame.K_SPACE:
+            self._start_hit()
+        elif self.control_scheme == 'arrows' and (key == pygame.K_SLASH or key == pygame.K_RCTRL):
+            self._start_hit()
+
+    def _start_hit(self):
+        """Inicia la animación de golpe"""
+        # Determinar dirección del golpe
+        if self.last_direction == 'left':
+            anim_name = 'hit_left'
+        else:
+            anim_name = 'hit_right'
+
+        # Verificar que la animación existe
+        if anim_name in self.animations:
+            #print(f"Player {self.player_number}: Iniciando animación {anim_name}")  # Debug
+            # IMPORTANTE: loop=False para que la animación no se repita
+            self.set_animation(anim_name, loop=False)
+            self._is_hitting = True
+        #else:
+            #print(f"Player {self.player_number}: Animación {anim_name} no encontrada")  # Debug
 
     def update(self, dt, keys=None):
         """Actualiza el jugador"""
         if keys:
             self.handle_input(keys)
 
-        # Llamar al update de la clase padre para manejar animaciones
+        # DEBUG: Imprimir estado durante hit
+        #if self._is_hitting:
+        #    print(
+        #        f"Player {self.player_number} HIT - Anim: {self.current_animation}, Frame: {self.frame_index}, Finished: {self.animation_finished}")
+
+        # Actualizamos animación y mask
         super().update(dt)
 
+        # Detectar cuando termina la animación de hit
+        if self._is_hitting and self.animation_finished:
+            print(f"Player {self.player_number}: Finalizando hit")  # Debug
+            self._is_hitting = False
+            # Volver a idle según la última dirección
+            if self.last_direction == 'left':
+                self.set_animation('idle_left')
+            elif self.last_direction == 'right':
+                self.set_animation('idle_right')
+            else:
+                self.set_animation('idle')
 
     def print_available_animations(self):
         """Método de debug para ver qué animaciones están disponibles"""
