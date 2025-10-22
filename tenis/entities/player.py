@@ -164,7 +164,7 @@ class Player(GameObject):
         # Actualizamos animación y mask
         super().update(dt)
 
-        # ✅ NUEVO: controlar el tiempo del golpe
+        #NUEVO: controlar el tiempo del golpe
         if self.hitting:
             self.hit_timer -= dt
             if self.hit_timer <= 0:

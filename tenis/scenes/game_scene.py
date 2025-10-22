@@ -282,11 +282,11 @@ class GameScene(Scene):
         for p in players_behind:
             p.draw(surface)
 
-        # Dibujar la pelota
-        self.ball.draw(surface)
-
         # Dibujar la red
         surface.blit(self.red, (0, 0))
+
+        # Dibujar la pelota(por ahora siempre se ve por arriba de la red)
+        self.ball.draw(surface)
 
         # Dibujar jugadores delante de la red
         for p in players_front:
