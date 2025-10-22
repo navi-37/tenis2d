@@ -21,6 +21,11 @@ class Player(GameObject):
         self.control_scheme = control_scheme
         self.scaled_size = 300
         self._is_hitting = False
+        self.hitting = False  # NUEVO: usado por la pelota
+        self.hit_timer = 0  # NUEVO: duración del golpe en ms
+
+        # Mapear nombres de animaciones genéricas a las que están en el JSON
+        self._detect_animations()
         self.vertical_idle_side = 'right'
         self.last_direction = 'idle'
         self.foot_offset = 290
@@ -145,6 +150,11 @@ class Player(GameObject):
             # IMPORTANTE: loop=False para que la animación no se repita
             self.set_animation(anim_name, loop=False)
             self._is_hitting = True
+            self.hitting = True  #NUEVO: marca que está pegando
+            self.hit_timer = 200  # ms de duración del golpe
+
+        #else:
+            #print(f"Player {self.player_number}: Animación {anim_name} no encontrada")  # Debug
 
     def update(self, dt, keys=None):
         """Actualiza el jugador"""
@@ -153,6 +163,12 @@ class Player(GameObject):
 
         # Actualizamos animación y mask
         super().update(dt)
+
+        # ✅ NUEVO: controlar el tiempo del golpe
+        if self.hitting:
+            self.hit_timer -= dt
+            if self.hit_timer <= 0:
+                self.hitting = False
 
         # Detectar cuando termina la animación de hit
         if self._is_hitting and self.animation_finished:

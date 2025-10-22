@@ -111,13 +111,37 @@ class GameScene(Scene):
 
         self.test_timer = pygame.time.get_ticks()
         self.test_duration = 3000  # 3 segundos
+        # Pelota
+        self.ball = Ball(self.game.width // 2, self.game.height // 2, speed=6)
+        self.reset_point()
+
+    def reset_point(self):
+        """Reinicia pelota y posiciones de jugadores al comenzar un nuevo punto."""
+        self.ball.stop()
+        self.ball.x = 640
+        self.ball.y = 250
+        self.ball.update_rect()
+
+        # Reset jugadores
+        self.player1.x, self.player1.y = 450, 50
+        self.player1.rect.topleft = (self.player1.x, self.player1.y)
+
+        if self.player2:
+            self.player2.x, self.player2.y = 1100, 750
+            self.player2.rect.topleft = (self.player2.x, self.player2.y)
 
     def _handle_events_impl(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.game.change_scene('menu')
                 # Pasar al jugador el evento de input
                 for player in self.players:
                     player.handle_keydown(event.key)
+                # sacar pelota
+                if event.key == pygame.K_SPACE:
+                    if not self.ball.active:
+                        self.ball.launch()
 
     def _update_impl(self, dt):
         keys = pygame.key.get_pressed()
@@ -128,6 +152,13 @@ class GameScene(Scene):
 
         for player in self.players:
             player.update(dt, keys)
+
+        # pelota
+        self.ball.update(dt)
+        self.ball.handle_collisions(self.player1, self.player2, self.game.height)
+        # Si la pelota se detuvo por tocar un borde → resetear punto
+        if not self.ball.active:
+            self.reset_point()
 
         self.handle_net_collision()
         self.handle_gradas_collision()
@@ -250,6 +281,9 @@ class GameScene(Scene):
         # Dibujar jugadores detrás de la red
         for p in players_behind:
             p.draw(surface)
+
+        # Dibujar la pelota
+        self.ball.draw(surface)
 
         # Dibujar la red
         surface.blit(self.red, (0, 0))
