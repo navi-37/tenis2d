@@ -6,7 +6,8 @@ from tenis.entities.player import Player
 class GameScene(Scene):
     """Escena principal del juego"""
 
-    def __init__(self, game, num_players=1):
+    #def __init__(self, game, num_players=1):
+    def __init__(self, game, num_players=1, character1=None, character2=None):
         super().__init__(game)
 
         # fondos por capas
@@ -26,6 +27,8 @@ class GameScene(Scene):
         # jugadores
         self.players = []
         self.num_players = num_players
+        self.character1 = character1
+        self.character2 = character2
 
         # x y definen la posición en pantalla en la que aparecen al comenzar el juego
         self.player1 = Player(450, 50, player_number=1, control_scheme='wasd')
