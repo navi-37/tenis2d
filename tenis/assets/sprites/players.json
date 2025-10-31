@@ -1,0 +1,330 @@
+{
+  "project_name": "utuTenis",
+  "spritesheet_path": "spritesheet.png",
+  "players": [
+    {
+    "character_name": "player 1_1",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 0, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 1000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 0, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 0, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 1000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 1000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 0, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 1000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 1_2",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 2000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 3000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 2000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 2000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 3000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 3000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 2000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 3000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 1_3",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 4000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 5000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 4000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 4000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 5000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 5000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 4000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 5000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 1_4",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 6000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 7000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 6000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 6000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 7000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 7000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 6000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 7000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 1_5",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 8000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 9000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 8000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 8000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 9000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 9000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 8000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 9000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 1_6",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 10000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 11000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 10000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 10000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 11000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 11000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 10000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 11000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 2_1",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 12000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 13000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 12000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 12000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 13000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 13000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 12000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 13000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 2_2",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 14000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 15000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 14000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 14000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 15000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 15000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 14000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 15000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 2_3",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 16000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 17000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 16000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 16000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 17000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 17000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 16000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 17000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 2_4",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 18000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 19000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 18000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 18000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 19000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 19000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 18000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 19000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+    "character_name": "player 2_5",
+    "animations": {
+      "idle": [
+      { "width": 1000, "height": 1000, "x": 0, "y": 20000, "name": "P1 (1).png" },
+      { "width": 1000, "height": 1000, "x": 0, "y": 21000, "name": "P1 (7).png" }
+      ],
+    "walk_right": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 20000, "name": "P1 (3).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 20000, "name": "P1 (4).png" }
+    ],
+    "walk_left": [
+      { "width": 1000, "height": 1000, "x": 2000, "y": 21000, "name": "P1 (9).png" },
+      { "width": 1000, "height": 1000, "x": 3000, "y": 21000, "name": "P1 (10).png" }
+    ],
+    "hit_right": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 20000, "name": "P1 (2).png" }
+    ],
+    "hit_left": [
+      { "width": 1000, "height": 1000, "x": 1000, "y": 21000, "name": "P1 (8).png" }
+    ]
+  	}
+    },
+    {
+      "character_name": "player 2_6",
+      "animations": {
+        "idle": [
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 0,
+            "y": 22000,
+            "name": "P1 (1).png"
+          },
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 0,
+            "y": 23000,
+            "name": "P1 (7).png"
+          }
+        ],
+        "walk_right": [
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 2000,
+            "y": 22000,
+            "name": "P1 (3).png"
+          },
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 3000,
+            "y": 22000,
+            "name": "P1 (4).png"
+          }
+        ],
+        "walk_left": [
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 2000,
+            "y": 23000,
+            "name": "P1 (9).png"
+          },
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 3000,
+            "y": 23000,
+            "name": "P1 (10).png"
+          }
+        ],
+        "hit_right": [
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 1000,
+            "y": 22000,
+            "name": "P1 (2).png"
+          }
+        ],
+        "hit_left": [
+          {
+            "width": 1000,
+            "height": 1000,
+            "x": 1000,
+            "y": 23000,
+            "name": "P1 (8).png"
+          }
+        ]
+      }
+    }
+  ]
+}

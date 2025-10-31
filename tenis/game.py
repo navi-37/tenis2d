@@ -39,7 +39,22 @@ class TenisGame:
         if scene_name == 'game':
             # Crear nueva instancia de GameScene con parámetros
             num_players = kwargs.get('num_players', 1)
-            self.scenes['game'] = GameScene(self, num_players)
+            character1 = kwargs.get('character1')
+            character2 = kwargs.get('character2')
+
+            # Debug: verificar qué se está recibiendo
+            print(f"\n🔄 change_scene recibió:")
+            print(f"   num_players: {num_players}")
+            print(f"   character1: {character1}")
+            print(f"   character2: {character2}")
+
+            # Crear GameScene con todos los parámetros
+            self.scenes['game'] = GameScene(
+                self,
+                num_players=num_players,
+                character1=character1,
+                character2=character2
+            )
             self.current_scene = self.scenes['game']
 
         elif scene_name == 'menu':
