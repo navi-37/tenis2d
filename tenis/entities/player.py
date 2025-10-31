@@ -5,25 +5,35 @@ from engine.game_object import GameObject
 
 class Player(GameObject):
     """Jugador con controles y animaciones"""
-
-    def __init__(self, x, y, player_number=1, control_scheme='wasd'):
-        json_path = os.path.join('assets', 'sprites', f'player_{player_number}.json')
-        super().__init__(x, y, json_path)
-
-        self.velocidad = 8
+    def __init__(self, x, y, player_number=1, variant=1, control_scheme='wasd'):
         self.player_number = player_number
+        self.variant = variant
+        self.character_name = f"player {player_number}_{variant}"
+
+        # Ruta al JSON unificado
+        json_path = os.path.join('assets', 'sprites', 'players.json')
+
+        # Llamar al GameObject con los parámetros correctos
+        super().__init__(x, y, json_path, player_number, variant)
+
+        # Configuración del jugador
+        self.velocidad = 8
         self.control_scheme = control_scheme
         self.scaled_size = 300
-
         self._is_hitting = False
-
-        # Mapear nombres de animaciones genéricas a las que están en el JSON
-        self._detect_animations()
         self.vertical_idle_side = 'right'
         self.last_direction = 'idle'
         self.foot_offset = 290
 
+        # Guardar posición previa para colisiones
+        self.prev_x = x
+        self.prev_y = y
+
+        # Detectar animaciones disponibles
+        self._detect_animations()
+
     def _detect_animations(self):
+        """Detecta qué animaciones están disponibles en el JSON"""
         self.anims = {}
 
         animation_map = {
@@ -42,7 +52,7 @@ class Player(GameObject):
                     self.anims[key] = name
                     break
 
-        # Después de detectar anims normales
+        # Crear variantes de idle para cada dirección
         if 'idle' in self.animations:
             idle_frames = self.animations['idle']
             if len(idle_frames) >= 2:
@@ -54,7 +64,6 @@ class Player(GameObject):
 
     def handle_input(self, keys):
         """Maneja el input del jugador según su esquema de control"""
-
         # Si estamos golpeando, no procesar movimiento ni cambiar animaciones
         if self._is_hitting:
             return
@@ -128,29 +137,20 @@ class Player(GameObject):
 
         # Verificar que la animación existe
         if anim_name in self.animations:
-            #print(f"Player {self.player_number}: Iniciando animación {anim_name}")  # Debug
             # IMPORTANTE: loop=False para que la animación no se repita
             self.set_animation(anim_name, loop=False)
             self._is_hitting = True
-        #else:
-            #print(f"Player {self.player_number}: Animación {anim_name} no encontrada")  # Debug
 
     def update(self, dt, keys=None):
         """Actualiza el jugador"""
         if keys:
             self.handle_input(keys)
 
-        # DEBUG: Imprimir estado durante hit
-        #if self._is_hitting:
-        #    print(
-        #        f"Player {self.player_number} HIT - Anim: {self.current_animation}, Frame: {self.frame_index}, Finished: {self.animation_finished}")
-
         # Actualizamos animación y mask
         super().update(dt)
 
         # Detectar cuando termina la animación de hit
         if self._is_hitting and self.animation_finished:
-            print(f"Player {self.player_number}: Finalizando hit")  # Debug
             self._is_hitting = False
             # Volver a idle según la última dirección
             if self.last_direction == 'left':
@@ -162,7 +162,7 @@ class Player(GameObject):
 
     def print_available_animations(self):
         """Método de debug para ver qué animaciones están disponibles"""
-        print(f"\n=== Player {self.player_number} - Animaciones disponibles ===")
+        print(f"\n=== Player {self.player_number}_{self.variant} - Animaciones disponibles ===")
         print(f"Animaciones en JSON: {list(self.animations.keys())}")
         print(f"Mapeo de controles: {self.anims}")
         print(f"Animación actual: {self.current_animation}")

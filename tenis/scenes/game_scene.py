@@ -6,7 +6,6 @@ from tenis.entities.player import Player
 class GameScene(Scene):
     """Escena principal del juego"""
 
-    #def __init__(self, game, num_players=1):
     def __init__(self, game, num_players=1, character1=None, character2=None):
         super().__init__(game)
 
@@ -30,14 +29,40 @@ class GameScene(Scene):
         self.character1 = character1
         self.character2 = character2
 
-        # x y definen la posición en pantalla en la que aparecen al comenzar el juego
-        self.player1 = Player(450, 50, player_number=1, control_scheme='wasd')
+        # Debug: mostrar qué se recibió
+        print(f"\n🎮 GameScene inicializado:")
+        print(f"   num_players: {num_players}")
+        print(f"   character1: {character1}")
+        print(f"   character2: {character2}")
+
+        # Crear Player 1
+        # El jugador 1 siempre usa sprites de "player 1" con la variante seleccionada
+        variant1 = character1 if character1 is not None else 1
+        print(f"   Creando Player 1: player_number=1, variant={variant1}")
+
+        self.player1 = Player(
+            450, 50,
+            player_number=1,
+            variant=variant1,
+            control_scheme='wasd'
+        )
         self.players.append(self.player1)
         self.player1.print_available_animations()
 
+        # Crear Player 2 (si corresponde)
         if num_players == 2:
-            self.player2 = Player(1100, 750, player_number=2, control_scheme='arrows')
+            # El jugador 2 siempre usa sprites de "player 2" con la variante seleccionada
+            variant2 = character2 if character2 is not None else 1
+            print(f"   Creando Player 2: player_number=2, variant={variant2}")
+
+            self.player2 = Player(
+                1100, 750,
+                player_number=2,
+                variant=variant2,
+                control_scheme='arrows'
+            )
             self.players.append(self.player2)
+            self.player2.print_available_animations()
 
         # red y colisión
         self.red_y = self.game.height // 2

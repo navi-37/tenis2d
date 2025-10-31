@@ -6,7 +6,7 @@ import os
 class GameObject:
     """Clase base para objetos animados del juego"""
 
-    def __init__(self, x, y, json_path):
+    def __init__(self, x, y, json_path, player_number=1, variant=1):
         self.x = x
         self.y = y
         self.sprite_sheet = None
@@ -22,37 +22,47 @@ class GameObject:
         self.animation_loop = True  # Por defecto las animaciones hacen loop
         self.animation_finished = False  # Flag para saber si una animación no-loop terminó
 
-        self.load_from_json(json_path)
+        # Cargar desde JSON
+        self.load_from_json(json_path, player_number, variant)
 
-    def load_from_json(self, json_path):
-        """Carga spritesheet y animaciones desde JSON"""
-        try:
-            with open(json_path, 'r') as f:
-                data = json.load(f)
+    def load_from_json(self, json_path, player_number, variant):
+        """Carga las animaciones desde el JSON y el spritesheet"""
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
-            # Cargar imagen del spritesheet
-            json_dir = os.path.dirname(os.path.abspath(json_path))
-            spritesheet_filename = os.path.basename(data.get('spritesheet_path'))
-            spritesheet_path = os.path.join(json_dir, spritesheet_filename)
-            self.sprite_sheet = pygame.image.load(spritesheet_path).convert_alpha()
+        # Cargar spritesheet
+        spritesheet_path = os.path.join('assets', 'sprites', data.get("spritesheet_path", "spritesheet.png"))
+        if not os.path.exists(spritesheet_path):
+            raise FileNotFoundError(f"No se encontró el spritesheet en: {spritesheet_path}")
 
-            # Cargar animaciones
-            for anim_name, frames_data in data.get('animations', {}).items():
-                if isinstance(frames_data, dict):
-                    frames_data = [frames_data]
-                self.animations[anim_name] = [
-                    (f['x'], f['y'], f['width'], f['height'])
-                    for f in frames_data
-                ]
+        self.sprite_sheet = pygame.image.load(spritesheet_path).convert_alpha()
 
-            if not self.animations:
-                raise ValueError("No hay animaciones en el JSON")
+        # Buscar el jugador correcto
+        player_name = f"player {player_number}_{variant}"
+        player_data = next(
+            (p for p in data["players"] if p["character_name"] == player_name),
+            None
+        )
 
-            self.set_animation('idle')
+        if not player_data:
+            raise ValueError(f"No se encontró {player_name} en {json_path}")
 
-        except Exception as e:
-            print(f"Error cargando {json_path}: {e}")
-            raise
+        # Convertir las animaciones del formato JSON a tuplas (x, y, w, h)
+        for anim_name, frames in player_data["animations"].items():
+            self.animations[anim_name] = []
+            for frame_data in frames:
+                # Convertir de diccionario a tupla
+                self.animations[anim_name].append((
+                    frame_data["x"],
+                    frame_data["y"],
+                    frame_data["width"],
+                    frame_data["height"]
+                ))
+
+        # Establecer animación inicial
+        if self.animations:
+            first_anim = list(self.animations.keys())[0]
+            self.set_animation(first_anim)
 
     def set_animation(self, anim_name, loop=True):
         """
