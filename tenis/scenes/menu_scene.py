@@ -103,7 +103,7 @@ class MenuScene(Scene):
 
         # Música de fondo
         pygame.mixer.music.load(os.path.join(sound_path, "game-music-loop-7.mp3"))
-        pygame.mixer.music.set_volume(0.4)  # Volumen al 50%
+        pygame.mixer.music.set_volume(0.1)  # Volumen al 40% !!!!!!!!!!!!!!!
 
         # Guardar referencia para detener después
         self.background_music = pygame.mixer.music

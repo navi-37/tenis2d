@@ -1,3 +1,5 @@
+import os
+
 import pygame
 
 from scenes.menu_scene import MenuScene
@@ -15,6 +17,8 @@ class TenisGame:
         self.height = 1080
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("utuTenis")
+        icono = pygame.image.load("assets/img/icono.png").convert_alpha()
+        pygame.display.set_icon(icono)
 
         # Control de tiempo
         self.clock = pygame.time.Clock()
@@ -56,6 +60,13 @@ class TenisGame:
                 character2=character2
             )
             self.current_scene = self.scenes['game']
+
+        elif scene_name == 'gameover':
+            from scenes.gameover_scene import GameOverScene
+            num_players = kwargs.get('num_players', 1)
+            winner = kwargs.get('winner', 1)
+            self.scenes['gameover'] = GameOverScene(self, num_players, winner)
+            self.current_scene = self.scenes['gameover']
 
         elif scene_name == 'menu':
             # Reiniciar el menú
