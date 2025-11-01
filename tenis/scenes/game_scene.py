@@ -9,6 +9,9 @@ class GameScene(Scene):
     def __init__(self, game, num_players=1, character1=None, character2=None):
         super().__init__(game)
 
+        # Para que se pueda pausar
+        self.pausable = True
+
         # fondos por capas
         self.gradas = pygame.image.load("assets/img/gradas.png").convert()
         self.cancha = pygame.image.load("assets/img/fondo.png").convert()
@@ -80,16 +83,17 @@ class GameScene(Scene):
         self.red_bottom_mask = pygame.mask.from_surface(self.red_bottom_surf)
         self.red_bottom_rect = pygame.Rect(0, self.red_y - 30, self.game.width, self.red_height)
 
-    def handle_events(self, events):
+        self.test_timer = pygame.time.get_ticks()
+        self.test_duration = 3000  # 3 segundos
+
+    def _handle_events_impl(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.game.change_scene('menu')
                 # Pasar al jugador el evento de input
                 for player in self.players:
                     player.handle_keydown(event.key)
 
-    def update(self, dt):
+    def _update_impl(self, dt):
         keys = pygame.key.get_pressed()
 
         for player in self.players:
@@ -102,6 +106,22 @@ class GameScene(Scene):
         self.handle_net_collision()
         self.handle_gradas_collision()
         self.handle_screen_bounds()
+
+        # ========== PARA TESTEAR EL GAMEOVER ==========
+        now = pygame.time.get_ticks()
+        if now - self.test_timer >= self.test_duration:
+
+            # CASO 1: 2 jugadores, gana jugador 1
+            #self.game.change_scene('gameover', num_players=2, winner=1)
+
+            # CASO 2: 2 jugadores, gana jugador 2
+            # self.game.change_scene('gameover', num_players=2, winner=2)
+
+            # CASO 3: 1 jugador, gana el humano (jugador 1)
+            # self.game.change_scene('gameover', num_players=1, winner=1)
+
+            # CASO 4: 1 jugador, gana la CPU (jugador 2)
+            self.game.change_scene('gameover', num_players=1, winner=2)
 
     def handle_net_collision(self):
         """Detecta colisiones pixel-perfect con la red según el jugador"""
@@ -170,7 +190,7 @@ class GameScene(Scene):
             player.rect.x = player.x
             player.rect.y = player.y
 
-    def draw(self, surface):
+    def _draw_impl(self, surface):
         """Dibuja la escena con orden correcto respecto a la red"""
 
         # Dibujar fondo
