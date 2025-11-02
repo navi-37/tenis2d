@@ -122,9 +122,14 @@ class Player(GameObject):
 
     def handle_keydown(self, key):
         """Marca que se debe iniciar la animación de golpe al presionar la tecla"""
-        if self.control_scheme == 'wasd' and key == pygame.K_SPACE:
+        # Controles para jugador 1 (WASD + V)
+        if self.control_scheme == 'wasd' and key == pygame.K_v:
             self._start_hit()
-        elif self.control_scheme == 'arrows' and (key == pygame.K_SLASH or key == pygame.K_RCTRL):
+        # Controles para jugador 2 en modo 2 jugadores (Flechas + L)
+        elif self.control_scheme == 'arrows' and key == pygame.K_l:
+            self._start_hit()
+        # Controles para jugador 2 en modo 1 jugador (Flechas + Espacio)
+        elif self.control_scheme == 'arrows_space' and key == pygame.K_SPACE:
             self._start_hit()
 
     def _start_hit(self):
