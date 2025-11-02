@@ -1,4 +1,5 @@
 import pygame
+import random
 from engine.ui import Scene
 from tenis.entities.player import Player
 
@@ -29,43 +30,68 @@ class GameScene(Scene):
         # jugadores
         self.players = []
         self.num_players = num_players
-        self.character1 = character1
-        self.character2 = character2
 
         # Debug: mostrar qué se recibió
         print(f"\n🎮 GameScene inicializado:")
         print(f"   num_players: {num_players}")
-        print(f"   character1: {character1}")
-        print(f"   character2: {character2}")
+        print(f"   character1 recibido: {character1}")
+        print(f"   character2 recibido: {character2}")
 
-        # Crear Player 1
-        # El jugador 1 siempre usa sprites de "player 1" con la variante seleccionada
-        variant1 = character1 if character1 is not None else 1
+        # ===== LÓGICA CORREGIDA PARA SELECCIÓN DE PERSONAJES =====
+        if num_players == 1:
+            # En modo 1 jugador:
+            # - character1 es el que eligió el usuario, pero debe ser el Player 2 (abajo)
+            # - Player 1 (arriba, CPU) debe ser aleatorio
+
+            # Generar variante aleatoria para la CPU (Player 1)
+            variant1 = random.randint(1, 4)  # Ajusta el rango según tus variantes disponibles
+
+            # El personaje elegido por el usuario va al Player 2
+            variant2 = character1 if character1 is not None else 1
+
+            print(f"   Modo 1 jugador:")
+            print(f"   Player 1 (CPU): aleatorio = {variant1}")
+            print(f"   Player 2 (Usuario): elegido = {variant2}")
+
+        else:
+            # En modo 2 jugadores: ambos son elegidos por los usuarios
+            variant1 = character1 if character1 is not None else 1
+            variant2 = character2 if character2 is not None else 1
+
+            print(f"   Modo 2 jugadores:")
+            print(f"   Player 1: {variant1}")
+            print(f"   Player 2: {variant2}")
+
+        # Crear Player 1 (arriba)
         print(f"   Creando Player 1: player_number=1, variant={variant1}")
-
         self.player1 = Player(
             450, 50,
             player_number=1,
             variant=variant1,
-            control_scheme='wasd'
+            control_scheme='wasd'  # Siempre WASD + V
         )
         self.players.append(self.player1)
         self.player1.print_available_animations()
 
-        # Crear Player 2 (si corresponde)
-        if num_players == 2:
-            # El jugador 2 siempre usa sprites de "player 2" con la variante seleccionada
-            variant2 = character2 if character2 is not None else 1
-            print(f"   Creando Player 2: player_number=2, variant={variant2}")
+        # Crear Player 2 (abajo)
+        print(f"   Creando Player 2: player_number=2, variant={variant2}")
 
-            self.player2 = Player(
-                1100, 750,
-                player_number=2,
-                variant=variant2,
-                control_scheme='arrows'
-            )
-            self.players.append(self.player2)
-            self.player2.print_available_animations()
+        # Determinar control_scheme según el modo
+        if num_players == 1:
+            # En modo 1 jugador: Player 2 es el usuario con Flechas + Espacio
+            control = 'arrows_space'
+        else:
+            # En modo 2 jugadores: Player 2 usa Flechas + L
+            control = 'arrows'
+
+        self.player2 = Player(
+            1100, 750,
+            player_number=2,
+            variant=variant2,
+            control_scheme=control
+        )
+        self.players.append(self.player2)
+        self.player2.print_available_animations()
 
         # red y colisión
         self.red_y = self.game.height // 2
@@ -110,18 +136,17 @@ class GameScene(Scene):
         # ========== PARA TESTEAR EL GAMEOVER ==========
         now = pygame.time.get_ticks()
         if now - self.test_timer >= self.test_duration:
-
             # CASO 1: 2 jugadores, gana jugador 1
-            #self.game.change_scene('gameover', num_players=2, winner=1)
+            # self.game.change_scene('gameover', num_players=2, winner=1)
 
             # CASO 2: 2 jugadores, gana jugador 2
             # self.game.change_scene('gameover', num_players=2, winner=2)
 
-            # CASO 3: 1 jugador, gana el humano (jugador 1)
-            # self.game.change_scene('gameover', num_players=1, winner=1)
+            # CASO 3: 1 jugador, gana la CPU (jugador 1)
+            self.game.change_scene('gameover', num_players=1, winner=1)
 
-            # CASO 4: 1 jugador, gana la CPU (jugador 2)
-            self.game.change_scene('gameover', num_players=1, winner=2)
+            # CASO 4: 1 jugador, gana el humano (jugador 2)
+            # self.game.change_scene('gameover', num_players=1, winner=2)
 
     def handle_net_collision(self):
         """Detecta colisiones pixel-perfect con la red según el jugador"""
@@ -174,18 +199,24 @@ class GameScene(Scene):
         """Evita que los jugadores salgan de la pantalla usando rects"""
 
         sprite_width, sprite_height = 300, 300  # tamaño escalado
+
+        margin_left = 15
+        margin_right = 50
+        margin_top = 75
+        margin_bottom = 75
+
         for player in self.players:
             # Laterales
-            if player.x < 0:
-                player.x = 0
-            elif player.x + sprite_width > self.game.width:
-                player.x = self.game.width - sprite_width
+            if player.x < -margin_left:
+                player.x = -margin_left
+            elif player.x + sprite_width > self.game.width + margin_right:
+                player.x = self.game.width + margin_right - sprite_width
 
             # Arriba/abajo
-            if player.y < 0:
-                player.y = 0
-            elif player.y + sprite_height > self.game.height:
-                player.y = self.game.height - sprite_height
+            if player.y < -margin_top:
+                player.y = -margin_top
+            elif player.y + sprite_height > self.game.height + margin_bottom:
+                player.y = self.game.height + margin_bottom - sprite_height
 
             player.rect.x = player.x
             player.rect.y = player.y

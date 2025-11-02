@@ -60,7 +60,7 @@ class GameOverScene(Scene):
             self.message = f"Felicitaciones Jugador {self.winner}, ganaste!"
             self.level_up_sound.play()
         else:
-            if self.winner == 1:
+            if self.winner == 2:
                 self.message = "Ganaste! :)"
                 self.cheers_sound.play()
             else:
@@ -118,6 +118,6 @@ class GameOverScene(Scene):
         surface.blit(boton_salir_actual, (0, 0))
 
         message_rect = self.message_surf.get_rect(
-            center=(self.game.width // 2, self.game.height // 1.3)
+            center=(self.game.width // 2, self.game.height // 1.33)
         )
         surface.blit(self.message_surf, message_rect)
