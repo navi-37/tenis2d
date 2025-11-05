@@ -1,7 +1,9 @@
 import pygame
 import random
+import math
 from engine.ui import Scene
 from tenis.entities.player import Player
+from tenis.entities.ball import Ball
 
 
 class GameScene(Scene):
@@ -113,60 +115,132 @@ class GameScene(Scene):
         self.test_duration = 3000  # 3 segundos
         # Pelota
         self.ball = Ball(self.game.width // 2, self.game.height // 2, speed=6)
+
+        # --- Sistema de puntuación ---
+        self.score = {1: 0, 2: 0}
+        self.sets = {1: 0, 2: 0}
+        self.current_server = 1
+        self.max_sets = 3
+        self.show_server_text = True
+        self.server_text_timer = 2000  # ms
+        self.server_start_time = pygame.time.get_ticks()
+
+        self.reset_point()
+        # Fuente para marcador y avisos
+        self.font_score = pygame.font.Font("assets/fonts/pixelmix_bold.ttf", 24)
+        self.font_serve = pygame.font.Font("assets/fonts/pixelmix_bold.ttf", 80)
+
+        # temporizador texto de saque
+        self.show_server_text = True
+        self.server_start_time = pygame.time.get_ticks()
+        self.server_text_timer = 2000  # 2 segundos
+
+    def add_point(self, winner):
+        """Actualiza el marcador según quién ganó el punto"""
+        score_order = [0, 15, 30, 45]
+        loser = 2 if winner == 1 else 1
+
+        current = self.score[winner]
+        if current < 45:
+            next_index = score_order.index(current) + 1
+            self.score[winner] = score_order[next_index]
+        else:
+            # gana el set
+            self.sets[winner] += 1
+            self.score = {1: 0, 2: 0}
+            self.current_server = loser
+            print(f"🎾 Jugador {winner} ganó el set {self.sets[winner]}")
+
+            if self.sets[winner] >= self.max_sets // 2 + 1:
+                print(f"🏆 Jugador {winner} ganó el partido!")
+                self.game.change_scene('gameover', num_players=self.num_players, winner=winner)
+
+        # mostrar texto de nuevo saque
+        self.show_server_text = True
+        self.server_start_time = pygame.time.get_ticks()
         self.reset_point()
 
     def reset_point(self):
         """Reinicia pelota y posiciones de jugadores al comenzar un nuevo punto."""
         self.ball.stop()
-        self.ball.x = 640
-        self.ball.y = 250
-        self.ball.update_rect()
 
-        # Reset jugadores
+        # Posiciones FIJAS de saque (no dependen del jugador)
+        if self.current_server == 1:
+            self.ball.x, self.ball.y = 650, 300  # saque superior
+        else:
+            self.ball.x, self.ball.y = 1300, 900  # saque inferior
+
+        # Altura inicial (en el aire)
+        self.ball.z = self.ball.max_z * 0.8
+        self.ball.vel_z = 0
+        self.ball.rect.x = self.ball.x
+        self.ball.rect.y = self.ball.y
+
+        # Reset posiciones de jugadores (no se mueven antes del saque)
         self.player1.x, self.player1.y = 450, 50
         self.player1.rect.topleft = (self.player1.x, self.player1.y)
+        self.player2.x, self.player2.y = 1300, 750
+        self.player2.rect.topleft = (self.player2.x, self.player2.y)
 
-        if self.player2:
-            self.player2.x, self.player2.y = 1100, 750
-            self.player2.rect.topleft = (self.player2.x, self.player2.y)
+        # Bloquear movimiento hasta que se saque
+        self.waiting_for_serve = True
+        self.show_server_text = True
+        self.server_start_time = pygame.time.get_ticks()
 
     def _handle_events_impl(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.game.change_scene('menu')
-                # Pasar al jugador el evento de input
-                for player in self.players:
-                    player.handle_keydown(event.key)
-                # sacar pelota
-                if event.key == pygame.K_SPACE:
-                    if not self.ball.active:
+
+                # Saque según el jugador que sirve
+                if self.waiting_for_serve and not self.show_server_text:
+                    if self.current_server == 1 and event.key == pygame.K_v:
                         self.ball.launch()
+                        self.waiting_for_serve = False
+                    elif self.current_server == 2 and event.key == pygame.K_l:
+                        self.ball.launch()
+                        self.waiting_for_serve = False
+
+                # Solo permitir movimiento si no se está esperando el saque
+                if not self.waiting_for_serve:
+                    for player in self.players:
+                        player.handle_keydown(event.key)
 
     def _update_impl(self, dt):
         keys = pygame.key.get_pressed()
 
-        for player in self.players:
-            player.prev_x = player.x
-            player.prev_y = player.y
+        # Control del texto de “Saque jugador X”
+        if self.show_server_text:
+            now = pygame.time.get_ticks()
+            if now - self.server_start_time > self.server_text_timer:
+                self.show_server_text = False
 
-        for player in self.players:
-            player.update(dt, keys)
+        # Actualizar jugadores (solo si ya se sacó)
+        if not self.waiting_for_serve:
+            for player in self.players:
+                player.prev_x, player.prev_y = player.x, player.y
+                player.update(dt, keys)
 
-        # pelota
+        # Actualizar pelota
+        was_active = self.ball.active
         self.ball.update(dt)
         self.ball.handle_collisions(self.player1, self.player2, self.game.height)
-        # Si la pelota se detuvo por tocar un borde → resetear punto
-        if not self.ball.active:
-            self.reset_point()
+
+        # Punto terminado
+        if was_active and not self.ball.active:
+            if self.ball.y < self.game.height // 2:
+                self.add_point(2)
+            else:
+                self.add_point(1)
 
         self.handle_net_collision()
         self.handle_gradas_collision()
         self.handle_screen_bounds()
 
         # ========== PARA TESTEAR EL GAMEOVER ==========
-        now = pygame.time.get_ticks()
-        if now - self.test_timer >= self.test_duration:
+        #  now = pygame.time.get_ticks()
+        #   if now - self.test_timer >= self.test_duration:
             # CASO 1: 2 jugadores, gana jugador 1
             # self.game.change_scene('gameover', num_players=2, winner=1)
 
@@ -174,7 +248,7 @@ class GameScene(Scene):
             # self.game.change_scene('gameover', num_players=2, winner=2)
 
             # CASO 3: 1 jugador, gana la CPU (jugador 1)
-            self.game.change_scene('gameover', num_players=1, winner=1)
+        #     self.game.change_scene('gameover', num_players=1, winner=1)
 
             # CASO 4: 1 jugador, gana el humano (jugador 2)
             # self.game.change_scene('gameover', num_players=1, winner=2)
@@ -291,6 +365,40 @@ class GameScene(Scene):
         # Dibujar jugadores delante de la red
         for p in players_front:
             p.draw(surface)
+
+
+
+
+        # MARCADOR lateral
+        panel_x = self.game.width - 290
+        panel_y = 90
+        panel_w, panel_h = 280, 90
+
+        # superficie con transparencia
+        panel_surface = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+        pygame.draw.rect(panel_surface, (0, 0, 0, 180), (0, 0, panel_w, panel_h), border_radius=12)
+        surface.blit(panel_surface, (panel_x, panel_y))
+
+        # texto marcador
+        text_p1 = self.font_score.render(f"P1: {self.score[1]}  (Sets {self.sets[1]})", True, (93, 56, 255))
+        text_p2 = self.font_score.render(f"P2: {self.score[2]}  (Sets {self.sets[2]})", True, (93, 56, 255))
+
+        surface.blit(text_p1, (panel_x + 20, panel_y + 10))
+        surface.blit(text_p2, (panel_x + 20, panel_y + 45))
+
+        #TEXTO DE SAQUE con efecto FADE / PARPADEO
+        if self.show_server_text:
+            elapsed = pygame.time.get_ticks() - self.server_start_time
+            alpha = int(255 * abs(math.sin(elapsed / 300)))  # efecto parpadeo suave
+
+            serve_text = f"Saque Jugador {self.current_server}"
+            text_surface = self.font_serve.render(serve_text, True, (93, 56, 255))
+            text_surface.set_alpha(alpha)
+
+            # dibujar en el centro superior
+            text_x = self.game.width // 2 - text_surface.get_width() // 2
+            text_y = self.game.height // 2 - text_surface.get_height() // 2
+            surface.blit(text_surface, (text_x, text_y))
 
         # Debug FPS
         if hasattr(self.game, 'clock'):
