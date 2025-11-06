@@ -181,6 +181,15 @@ class Player(GameObject):
             else:
                 self.set_animation('idle')
 
+    def get_hitbox(self) -> pygame.Rect:
+        # 🔹 medidas aproximadas del cuerpo del jugador
+        width, height = 190, 190
+        # 🔹 offsets para centrar sobre el sprite
+        offset_x = -width // 2 + 150  # + → mueve hacia la derecha
+        offset_y = -height // 2 + 150  # + → mueve hacia abajo
+
+        return pygame.Rect(int(self.x) + offset_x, int(self.y) + offset_y, width, height)
+
     def print_available_animations(self):
         """Método de debug para ver qué animaciones están disponibles"""
         print(f"\n=== Player {self.player_number}_{self.variant} - Animaciones disponibles ===")

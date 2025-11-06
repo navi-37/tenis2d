@@ -10,7 +10,9 @@ class TenisGame:
     """Clase principal del juego"""
 
     def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 2, 512)
         pygame.init()
+        pygame.mixer.set_num_channels(16)
 
         # Configuración de ventana
         self.width = 1920
