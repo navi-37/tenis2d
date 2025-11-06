@@ -159,7 +159,8 @@ class GameScene(Scene):
         # temporizador texto de saque
         self.show_server_text = True
         self.server_start_time = pygame.time.get_ticks()
-        self.server_text_timer = 2000  # 2 segundos
+        self.server_text_timer = 3000
+        self.first_start = True
 
         #Feedback en pantalla
         self.feedback_text = None
@@ -170,7 +171,9 @@ class GameScene(Scene):
         self.sfx_hit = pygame.mixer.Sound("assets/sonidos/tennis-ball-hit.mp3")
         self.sfx_bounce = pygame.mixer.Sound("assets/sonidos/tennis-ball-bounce.mp3")
         self.sfx_point = pygame.mixer.Sound("assets/sonidos/level-up-05.mp3")
-
+        self.sfx_crowd = pygame.mixer.Sound("assets/sonidos/crowd-cheers.mp3")
+        self.sfx_crowd.set_volume(0.8)
+        self.flash_until = 0
         self.sfx_hit.set_volume(0.9)
         self.sfx_bounce.set_volume(1.0)
         self.sfx_point.set_volume(0.9)
@@ -210,14 +213,17 @@ class GameScene(Scene):
             self.score = {1: 0, 2: 0}
             self.current_server = loser
             print(f" Jugador {winner} ganó el set {self.sets[winner]}")
-
+            self.sfx_crowd.play(maxtime=3000)
+            self.flash_until = pygame.time.get_ticks() + 1000
+            # mostrar texto de saque SOLO al empezar un nuevo set
+            self.show_server_text = True
+            self.server_start_time = pygame.time.get_ticks()
+            # marcar que ya no es el primer inicio (pero sí reiniciar el set)
+            self.first_start = False
             if self.sets[winner] >= self.max_sets // 2 + 1:
                 print(f"Jugador {winner} ganó el partido!")
                 self.game.change_scene('gameover', num_players=self.num_players, winner=winner)
 
-        # mostrar texto de nuevo saque
-        self.show_server_text = True
-        self.server_start_time = pygame.time.get_ticks()
         self.reset_point()
 
     def reset_point(self):
@@ -244,8 +250,6 @@ class GameScene(Scene):
 
         # Bloquear hasta el saque
         self.waiting_for_serve = True
-        self.show_server_text = True
-        self.server_start_time = pygame.time.get_ticks()
 
         # Reset de estado de rally
         self.ball.bounce_count = 0
@@ -294,6 +298,10 @@ class GameScene(Scene):
         keys = pygame.key.get_pressed()
 
         # Texto “Saque…”
+        if self.first_start:
+            self.show_server_text = True
+            self.server_start_time = pygame.time.get_ticks()
+            self.first_start = False
         if self.show_server_text:
             now = pygame.time.get_ticks()
             if now - self.server_start_time > self.server_text_timer:
@@ -457,6 +465,17 @@ class GameScene(Scene):
         # Dibujar fondo
         surface.blit(self.gradas, (0, 0))
         surface.blit(self.cancha, (0, 0))
+
+        #Parpadeo al ganar un set
+        if pygame.time.get_ticks() < getattr(self, "flash_until", 0):
+            elapsed = pygame.time.get_ticks()
+            flicker_speed = 200
+            phase = (elapsed // flicker_speed) % 2
+            if phase == 0:
+                flash = pygame.Surface((self.game.width, self.game.height))
+                flash.fill((120, 200, 255))
+                flash.set_alpha(160)
+                surface.blit(flash, (0, 0))
 
         # Separar jugadores según sus pies (foot_y)
         players_behind = []
