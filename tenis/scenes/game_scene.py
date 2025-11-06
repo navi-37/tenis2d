@@ -4,6 +4,7 @@ import math
 from engine.ui import Scene
 from tenis.entities.player import Player
 from tenis.entities.ball import Ball
+from tenis.entities.bot_player import BotPlayer
 
 
 class GameScene(Scene):
@@ -41,19 +42,29 @@ class GameScene(Scene):
 
         # ===== LÓGICA CORREGIDA PARA SELECCIÓN DE PERSONAJES =====
         if num_players == 1:
-            # En modo 1 jugador:
-            # - character1 es el que eligió el usuario, pero debe ser el Player 2 (abajo)
-            # - Player 1 (arriba, CPU) debe ser aleatorio
-
-            # Generar variante aleatoria para la CPU (Player 1)
-            variant1 = random.randint(1, 4)  # Ajusta el rango según tus variantes disponibles
-
-            # El personaje elegido por el usuario va al Player 2
-            variant2 = character1 if character1 is not None else 1
+            # --- MODO 1 JUGADOR ---
+            variant1 = random.randint(1, 4)  # bot aleatorio
+            variant2 = character1 if character1 is not None else 1  # elegido por el usuario
 
             print(f"   Modo 1 jugador:")
             print(f"   Player 1 (CPU): aleatorio = {variant1}")
             print(f"   Player 2 (Usuario): elegido = {variant2}")
+
+            # Player 1 = BOT
+            self.player1 = BotPlayer(450, 50, player_number=1, variant=variant1)
+            self.player1.game = self.game
+            self.players.append(self.player1)
+            self.player1.print_available_animations()
+
+            # Player 2 = Usuario (flechas + espacio)
+            self.player2 = Player(
+                1100, 750,
+                player_number=2,
+                variant=variant2,
+                control_scheme='arrows_space'
+            )
+            self.players.append(self.player2)
+            self.player2.print_available_animations()
 
         else:
             # En modo 2 jugadores: ambos son elegidos por los usuarios
@@ -64,36 +75,28 @@ class GameScene(Scene):
             print(f"   Player 1: {variant1}")
             print(f"   Player 2: {variant2}")
 
-        # Crear Player 1 (arriba)
-        print(f"   Creando Player 1: player_number=1, variant={variant1}")
-        self.player1 = Player(
-            450, 50,
-            player_number=1,
-            variant=variant1,
-            control_scheme='wasd'  # Siempre WASD + V
-        )
-        self.players.append(self.player1)
-        self.player1.print_available_animations()
+            # Player 1 = Usuario 1 (WASD + V)
+            self.player1 = Player(
+                450, 50,
+                player_number=1,
+                variant=variant1,
+                control_scheme='wasd'
+            )
+            self.players.append(self.player1)
+            self.player1.print_available_animations()
 
-        # Crear Player 2 (abajo)
-        print(f"   Creando Player 2: player_number=2, variant={variant2}")
+            # Crear Player 2 (abajo)
+            print(f"   Creando Player 2: player_number=2, variant={variant2}")
 
-        # Determinar control_scheme según el modo
-        if num_players == 1:
-            # En modo 1 jugador: Player 2 es el usuario con Flechas + Espacio
-            control = 'arrows_space'
-        else:
-            # En modo 2 jugadores: Player 2 usa Flechas + L
-            control = 'arrows'
-
-        self.player2 = Player(
-            1100, 750,
-            player_number=2,
-            variant=variant2,
-            control_scheme=control
-        )
-        self.players.append(self.player2)
-        self.player2.print_available_animations()
+            ## Player 2 = Usuario 2 (Flechas + L)
+            self.player2 = Player(
+                1100, 750,
+                player_number=2,
+                variant=variant2,
+                control_scheme='arrows'
+            )
+            self.players.append(self.player2)
+            self.player2.print_available_animations()
 
         self.test_timer = pygame.time.get_ticks()
         self.test_duration = 3000  # 3 segundos
@@ -265,6 +268,16 @@ class GameScene(Scene):
         self.point_processed = False
         # Altura mínima para pasar la red (px de z)
         self.net_clearance = 8
+        #asegurar estado limpio tras puntos(controlar bugs)
+        if hasattr(self.player1, "last_ball_hit"):
+            self.player1.last_ball_hit = None
+        if hasattr(self.player1, "target_x_after_hit"):
+            self.player1.target_x_after_hit = None
+        if hasattr(self.player1, "_ya_posicionado"):
+            self.player1._ya_posicionado = False
+        if hasattr(self.ball, "last_hit_by"):
+            self.ball.last_hit_by = None
+            self.ball.active = False
 
     def _handle_events_impl(self, events):
         for event in events:
@@ -274,14 +287,30 @@ class GameScene(Scene):
 
                 # Saque según servidor
                 if self.waiting_for_serve and not self.show_server_text:
-                    if self.current_server == 1 and event.key == pygame.K_v:
-                        self.ball.launch()
-                        self.ball.last_hit_by = self.current_server
-                        self.waiting_for_serve = False
-                    elif self.current_server == 2 and event.key == pygame.K_l:
-                        self.ball.launch()
-                        self.ball.last_hit_by = self.current_server
-                        self.waiting_for_serve = False
+                    # si es modo 1 jugador
+                    if self.num_players == 1:
+                        if event.key == pygame.K_SPACE:
+                            if self.current_server == 1:
+                                # le toca al bot (P1)
+                                self.player1._start_hit()
+                                self.ball.launch("down_right")
+                                self.ball.last_hit_by = 1
+                                self.waiting_for_serve = False
+                            else:
+                                # le toca al jugador humano (P2)
+                                self.ball.launch("up_left")
+                                self.ball.last_hit_by = 2
+                                self.waiting_for_serve = False
+                    # si es modo 2 jugadores
+                    else:
+                        if self.current_server == 1 and event.key == pygame.K_v:
+                            self.ball.launch()
+                            self.ball.last_hit_by = 1
+                            self.waiting_for_serve = False
+                        elif self.current_server == 2 and event.key == pygame.K_l:
+                            self.ball.launch()
+                            self.ball.last_hit_by = 2
+                            self.waiting_for_serve = False
 
                 # Movimiento solo después del saque
                 if not self.waiting_for_serve:
@@ -309,9 +338,19 @@ class GameScene(Scene):
 
         # Jugadores solo se mueven tras el saque
         if not self.waiting_for_serve:
-            for player in self.players:
-                player.prev_x, player.prev_y = player.x, player.y
-                player.update(dt, keys)
+            # Si hay bot en modo 1 jugador
+            if isinstance(self.player1, BotPlayer):
+                # Player 1 = bot (CPU)
+                self.player1.prev_x, self.player1.prev_y = self.player1.x, self.player1.y
+                self.player1.update(dt, ball=self.ball)  # pasa la pelota al bot
+                # Player 2 = usuario
+                self.player2.prev_x, self.player2.prev_y = self.player2.x, self.player2.y
+                self.player2.update(dt, keys)
+            else:
+                # modo 2 jugadores: ambos controlados manualmente
+                for player in self.players:
+                    player.prev_x, player.prev_y = player.x, player.y
+                    player.update(dt, keys)
 
         # Pelota
         was_active = self.ball.active

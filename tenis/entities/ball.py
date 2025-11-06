@@ -2,6 +2,7 @@ import os
 import math
 import pygame
 from engine.game_object import GameObject
+from tenis.entities.bot_player import BotPlayer
 
 
 class Ball(GameObject):
@@ -259,11 +260,15 @@ class Ball(GameObject):
         now = pygame.time.get_ticks()
         scene = getattr(self.game, "current_scene", None)
 
+
         #detectar intersección
         c1 = jugador1.hitting and self.collides_with(jugador1)
         c2 = jugador2.hitting and self.collides_with(jugador2)
         # JUGADOR 1
         if c1 and not self.colliding_p1 and now >= self.hit_lock_until:
+            #no permitir golpes antes del primer pique
+            if self.bounce_count == 0:
+                return
             # (edge-trigger: acabamos de entrar en contacto)
             offset = (self.x - (jugador1.x + 75)) / 75
             offset = max(-1, min(1, offset))
@@ -279,12 +284,19 @@ class Ball(GameObject):
             self.passed_net = False
             #lock de golpe para evitar dobles sonidos
             self.hit_lock_until = now + 140
+            #El bot tiene mas fuerza
+            if isinstance(jugador1, BotPlayer):
+                self.vel_y *= 1.16
+                self.vel_z += 2.3
             #SFX HIT (una sola vez)
             if scene:
                 scene.sfx_hit.play()
 
         #JUGADOR 2
         elif c2 and not self.colliding_p2 and now >= self.hit_lock_until:
+            #no permitir golpes antes del primer pique
+            if self.bounce_count == 0:
+                return
             offset = (self.x - (jugador2.x + 75)) / 75
             offset = max(-1, min(1, offset))
             angle = offset * (math.pi / 4)
