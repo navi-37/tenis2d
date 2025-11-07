@@ -43,7 +43,7 @@ class GameScene(Scene):
         # ===== LÓGICA CORREGIDA PARA SELECCIÓN DE PERSONAJES =====
         if num_players == 1:
             # --- MODO 1 JUGADOR ---
-            variant1 = random.randint(1, 4)  # bot aleatorio
+            variant1 = random.randint(1, 6)  # bot aleatorio
             variant2 = character1 if character1 is not None else 1  # elegido por el usuario
 
             print(f"   Modo 1 jugador:")
@@ -188,6 +188,11 @@ class GameScene(Scene):
         #modo debug
         self.debug_hitboxes = False
 
+        # Música de fondo
+        pygame.mixer.music.load("assets/sonidos/game-music-loop-6.mp3")
+        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(-1)
+
     def _net_y_at(self, x):
         """Devuelve la y sobre la línea central para un x dado (interpolación lineal)."""
         (x1, y1), (x2, y2) = self.net_p1, self.net_p2
@@ -225,6 +230,10 @@ class GameScene(Scene):
             self.first_start = False
             if self.sets[winner] >= self.max_sets // 2 + 1:
                 print(f"Jugador {winner} ganó el partido!")
+
+                # Detener música antes de cambiar de escena
+                pygame.mixer.music.stop()
+
                 self.game.change_scene('gameover', num_players=self.num_players, winner=winner)
 
         self.reset_point()
@@ -283,6 +292,10 @@ class GameScene(Scene):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+
+                    # Detener música antes de cambiar de escena
+                    pygame.mixer.music.stop()
+
                     self.game.change_scene('menu')
 
                 # Saque según servidor
@@ -566,8 +579,8 @@ class GameScene(Scene):
             elapsed = pygame.time.get_ticks() - self.server_start_time
             alpha = int(200 + 55 * math.sin(elapsed / 800))
             alpha = max(0, min(255, alpha))
-            serve_text = f"Saque Jugador {self.current_server}"
-            text_surface = self.font_serve.render(serve_text, True, (110, 220, 255))  # más brillante
+            serve_text = f"SAQUE JUGADOR {self.current_server}"
+            text_surface = self.font_serve.render(serve_text, True, (255, 255, 255))  # más brillante
             text_surface.set_alpha(alpha)
             shadow_surface = self.font_serve.render(serve_text, True, (0, 0, 0))
             shadow_surface.set_alpha(int(alpha * 0.6))
