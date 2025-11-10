@@ -94,6 +94,9 @@ class GameOverScene(Scene):
                 if self._check_button_hover(self.mask_menu):
                     self.click_sound.play()
                     pygame.time.wait(200)
+                    self.level_up_sound.stop()
+                    self.losing_sound.stop()
+                    self.cheers_sound.stop()
                     self.game.change_scene('menu')
 
                 elif self._check_button_hover(self.mask_salir):

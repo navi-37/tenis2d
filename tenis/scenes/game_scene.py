@@ -233,6 +233,8 @@ class GameScene(Scene):
 
                 # Detener música antes de cambiar de escena
                 pygame.mixer.music.stop()
+                self.sfx_point.stop()
+                self.sfx_crowd.stop()
 
                 self.game.change_scene('gameover', num_players=self.num_players, winner=winner)
 
