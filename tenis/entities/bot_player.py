@@ -16,6 +16,7 @@ class BotPlayer(Player):
         self.dist_golpe = 280  # rango vertical de golpe
         self.reaccion_x = 240  # rango horizontal de golpe
         self.debug = False
+        self._anim_timer = 0  # controla la velocidad de avance de animación
 
     def update(self, dt, keys=None, ball=None):
         super().update(dt)
@@ -67,7 +68,7 @@ class BotPlayer(Player):
             self.target_x_after_hit = 600
             if self.x > 600:
                 self.x -= self.velocidad * 0.4
-                self.set_animation("walk_left")
+                self._advance_anim("walk_left", dt)
 
         #2)Detectar nuevo golpe del jugador
         # Si la pelota cambió de "last_hit_by" (el otro jugador golpeó)
@@ -110,12 +111,13 @@ class BotPlayer(Player):
                 step = self.velocidad * factor * (1 if dx > 0 else -1)
                 self.x += step
                 self.last_direction = "right" if dx > 0 else "left"
-                self.set_animation(f'walk_{self.last_direction}')
+                self._advance_anim(f'walk_{self.last_direction}', dt)
 
             # Movimiento vertical
             if abs(dy) > 8 and self.y > 60:
                 step_y = self.velocidad * 0.25 * speed_factor * (1 if dy > 0 else -1)
                 self.y += step_y
+                self._advance_anim(f'walk_{self.last_direction}', dt)  # ANIM: asegurar animación al moverse solo en Y
 
             # Frenar cuando ya está cerca del punto ideal
             if abs(dx) < 6 and abs(dy) < 6:
@@ -138,13 +140,14 @@ class BotPlayer(Player):
                 elif abs(dy) > 150:
                     self.y += self.velocidad * 0.15 * (1 if dy > 0 else -1)
 
-                self.set_animation(f'walk_{self.last_direction}')
+                self._advance_anim(f'walk_{self.last_direction}', dt)
             else:
                 self._volver_al_centro(dt)
 
         #4) Ajuste leve vertical
         if ball.vel_y < -4 and ball.y < self.y:
             self.y -= self.velocidad * 0.2
+            self._advance_anim(f'walk_{self.last_direction}', dt)  # ANIM: ajuste leve también anima piernas
 
         #5) Golpe automático
         if (ball.vel_y < 0 and
@@ -154,6 +157,7 @@ class BotPlayer(Player):
                 self.cooldown_golpe <= 0):
             # Paso hacia adelante antes del golpe
             self.y += 12  # impulso moderado
+            self._advance_anim(f'walk_{self.last_direction}', dt)  # ANIM: pequeña carrera previa al golpe
             self._start_hit()
             self.cooldown_golpe = 520
             self.last_direction = "right" if ball.x > self.x else "left"
@@ -161,6 +165,16 @@ class BotPlayer(Player):
         #6) cooldown
         if self.cooldown_golpe > 0:
             self.cooldown_golpe -= dt
+
+    def _advance_anim(self, anim, dt):
+        """Controla la animación más lenta para evitar piernas hiperactivas."""
+        self._anim_timer += dt
+        if self._anim_timer >= 120:
+            self._anim_timer = 0
+            if self.current_animation != anim:
+                self.set_animation(anim, loop=True)
+            else:
+                self.frame_index = (self.frame_index + 1) % len(self.animations[anim])
 
     def _volver_al_centro(self, dt):
         """Regresa al centro suavemente sin movimientos bruscos."""
@@ -171,7 +185,6 @@ class BotPlayer(Player):
             self.x += (dx / dist) * (self.velocidad * 0.55)
             self.y += (dy / dist) * (self.velocidad * 0.55)
             self.last_direction = "right" if dx > 0 else "left"
-            anim = self.anims.get(f'walk_{self.last_direction}', 'idle')
-            self.set_animation(anim)
+            self._advance_anim(f'walk_{self.last_direction}', dt)
         else:
             self.set_animation("idle_right")
