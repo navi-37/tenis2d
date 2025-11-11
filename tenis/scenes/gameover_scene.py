@@ -58,7 +58,8 @@ class GameOverScene(Scene):
     def _setup_result(self):
         if self.num_players == 2:
             self.message = f"Felicitaciones Jugador {self.winner}, ganaste!"
-            self.level_up_sound.play()
+            #self.level_up_sound.play()
+            self.cheers_sound.play()
         else:
             if self.winner == 2:
                 self.message = "Ganaste! :)"
