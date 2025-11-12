@@ -646,12 +646,14 @@ class GameScene(Scene):
             #limpiar cuando vence
             self.feedback_text = None
 
+        """
         # Debug FPS
         if hasattr(self.game, 'clock'):
             fps = int(self.game.clock.get_fps())
             font = pygame.font.Font(None, 36)
             fps_text = font.render(f'FPS: {fps}', True, (255, 255, 255))
             surface.blit(fps_text, (10, 10))
+        """
 
     def show_feedback(self, text, color=(255, 255, 255), ms=1400):
         self.feedback_text = text
