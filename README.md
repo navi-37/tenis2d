@@ -11,10 +11,11 @@
 * maiaoldak2001@gmail.com
 * ivan10czr@gmail.com
 
-
 **Versión:** 1.0.3
 
 **Fecha:** 2025-11-06
+
+[Documentación complementaria](https://drive.google.com/drive/folders/1OB81i2NVbRKDEETSmsiIGfj06NWEWfEr?usp=drive_link)
 
 ---
 
@@ -163,7 +164,7 @@ El juego no se centra en una narrativa, sino en la experiencia del enfrentamient
 | FNT-003 | Fuente para marcador de puntos y avisos | Fuente | [https://www.dafont.com/pixelmix.font](https://www.dafont.com/pixelmix.font) | Libre para uso personal | Gratis | "PixelMix" por Andrew Tyler |
 | IMG-001 | Imagen base para personaje | Imagen | [https://www.shutterstock.com/es/image-vector/vector-pixel-art-tennis-girl-isolated-733664059](https://www.shutterstock.com/es/image-vector/vector-pixel-art-tennis-girl-isolated-733664059) | Derechos Reservados | Gratis | "Vector pixel art tennis girl isolated" por saphatthachat pixel art |
 | IMG-002 | Imagen base para personaje | Imagen | [https://www.shutterstock.com/es/image-vector/vector-pixel-art-tennis-man-isolated-733663504](https://www.shutterstock.com/es/image-vector/vector-pixel-art-tennis-man-isolated-733663504) | Derechos Reservados | Gratis | "Vector pixel art tennis man isolated" por saphatthachat pixel art |
-&nbsp;
+
 
 Todos los spritesheets y elementos visuales del juego fueron creados internamente.
 
